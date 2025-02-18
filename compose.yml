@@ -1,32 +1,48 @@
 services:
   web:
-    build: web
+    build: ./web
     ports:
       - 80:80
     environment:
-      C2_SERVER_API_ADDR:  api
-      C2_SERVER_API_PORT: 8080
-      C2_SERVER_API_KEY_FILE: /run/secrets/api_key
+      C2_API_ADDR: api:8080
+      C2_API_KEY_FILE: /run/secrets/api_key
     secrets:
     - api_key
+    depends_on:
+      api:
+        condition: service_started
+    # develop:
+    #   watch:
+    #     - action: sync+restart
+    #       path: ./web/nginx.conf
+    #       target: /etc/nginx/nginx.conf
+        # - action: rebuild
+        #   path: ./web
+        #   target: /web
 
   api:
-    build: api
+    build: ./api
     ports:
       - 8080:8080
     environment:
-      C2_SERVER_API_ADDR:  api
-      C2_SERVER_API_PORT: 8080
-      C2_SERVER_API_KEY_FILE: /run/secrets/api_key
-      C2_SERVER_DB_ADDR: db
-      C2_SERVER_DB_PORT: 3306
-      C2_SERVER_DB_USER: c2
-      C2_SERVER_DB_PW_FILE: /run/secrets/db_password
-      C2_SERVER_DB_SCHEMA: c2
+      C2_API_ADDR: api:8080
+      C2_API_KEY_FILE: /run/secrets/api_key
+      C2_DB_ADDR: db:3306
+      C2_DB_USER: c2
+      C2_DB_PW_FILE: /run/secrets/db_password
+      C2_DB_SCHEMA: c2
     secrets:
       - api_key
       - db_password
       - db_root_password
+    depends_on:
+      db:
+        condition: service_started
+    # develop:
+    #   watch:
+    #     - action: rebuild
+    #       path: ./api
+    #       target: /api
 
   db:
     image: mariadb
@@ -37,8 +53,8 @@ services:
       MYSQL_USER: c2
       MYSQL_PASSWORD_FILE: /run/secrets/db_password
       MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
-    # ports:
-    # - 3306:3306
+    ports:
+      - 3306:3306
     secrets:
       - db_password
       - db_root_password
