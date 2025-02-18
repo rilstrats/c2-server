@@ -11,14 +11,16 @@ services:
     depends_on:
       api:
         condition: service_started
-    # develop:
-    #   watch:
-    #     - action: sync+restart
-    #       path: ./web/nginx.conf
-    #       target: /etc/nginx/nginx.conf
-        # - action: rebuild
-        #   path: ./web
-        #   target: /web
+    develop:
+      watch:
+        - action: sync+restart
+          path: ./web/nginx.conf
+          target: /etc/nginx/nginx.conf
+        - action: rebuild
+          path: ./web
+          target: /build
+          ignore:
+            - nginx.conf
 
   api:
     build: ./api
@@ -38,11 +40,11 @@ services:
     depends_on:
       db:
         condition: service_started
-    # develop:
-    #   watch:
-    #     - action: rebuild
-    #       path: ./api
-    #       target: /api
+    develop:
+      watch:
+        - action: rebuild
+          path: ./api
+          target: /build
 
   db:
     image: mariadb
