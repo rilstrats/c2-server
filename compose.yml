@@ -47,9 +47,9 @@ services:
           target: /build
 
   db:
-    image: mariadb
+    image: mysql
     volumes:
-      - db_data:/var/lib/mysql
+      - db_mysql_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: c2
       MYSQL_USER: c2
@@ -70,4 +70,4 @@ secrets:
     file: secrets/api_key.txt
 
 volumes:
-  db_data:
+  db_mysql_data:
